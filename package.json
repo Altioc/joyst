@@ -7,7 +7,7 @@
     "types": "dist/joyst.d.ts",
     "repository": {
         "type": "git",
-        "url": "https://github.com/kdmessner/joyst.git"
+        "url": "git+https://github.com/kdmessner/joyst.git"
     },
     "bugs": {
         "url": "https://github.com/kdmessner/joyst/issues"

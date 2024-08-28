@@ -1,0 +1,49 @@
+<example-app></example-app>
+
+<template id="example-app">
+    <button type="button" key="showButton">show</button>
+    <button type="button" key="hideButton">hide</button>
+    <show-if
+        condition="shouldShowHelloWorld"
+        key="showIf"
+        component="hello-world"
+    ></show-if>
+</template>
+
+<script type="module">
+    import { Joyst } from "./joyst";
+    import { ShowIf } from "./show-if";
+    import { Subject } from "./subject";
+
+    const ShouldShowHelloWorld = new Subject(false, "shouldShowHelloWorld");
+
+    class HelloWorld extends Joyst {
+        onInitialize() {
+            this.textContent = "Hello, World!";
+        }
+    }
+
+    class ExampleApp extends Joyst {
+        static template = "example-app";
+
+        onInitialize() {
+            const showButton = this.getChild("showButton");
+            const hideButton = this.getChild("hideButton");
+
+            this.addEvent("click", this.#showHelloWorld, showButton);
+            this.addEvent("click", this.#hideHelloWorld, hideButton);
+        }
+
+        #showHelloWorld() {
+            ShouldShowHelloWorld.set(true);
+        }
+
+        #hideHelloWorld() {
+            ShouldShowHelloWorld.set(false);
+        }
+    }
+
+    customElements.define("show-if", ShowIf);
+    customElements.define("hello-world", HelloWorld);
+    customElements.define("example-app", ExampleApp);
+</script>

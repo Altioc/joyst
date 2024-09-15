@@ -1,7 +1,7 @@
 {
     "name": "joyst",
     "description": "Another web component framework",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "source": "src/index.ts",
     "main": "dist/joyst.js",
     "types": "dist/joyst.d.ts",
@@ -19,7 +19,7 @@
         "build": "parcel build",
         "start": "parcel serve ./src/example.html"
     },
-    "author": "Kyle Messner",
+    "author": "Altioc",
     "license": "MIT",
     "files": [
         "dist/**/*"

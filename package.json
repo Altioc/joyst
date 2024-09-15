@@ -1,18 +1,18 @@
 {
     "name": "joyst",
     "description": "Another web component framework",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "source": "src/index.ts",
     "main": "dist/joyst.js",
     "types": "dist/joyst.d.ts",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/kdmessner/joyst.git"
+        "url": "git+https://github.com/Altioc/joyst.git"
     },
     "bugs": {
-        "url": "https://github.com/kdmessner/joyst/issues"
+        "url": "https://github.com/Altioc/joyst/issues"
     },
-    "homepage": "https://github.com/kdmessner/joyst",
+    "homepage": "https://github.com/Altioc/joyst",
     "scripts": {
         "test": "jest",
         "watch": "parcel watch",

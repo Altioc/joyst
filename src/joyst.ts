@@ -10,6 +10,8 @@ const NoTemplate = Symbol("NoTemplate");
 
 type TemplateResolvable = typeof NoTemplate | HTMLTemplateElement | string;
 
+const PascalCaseRegexp = /([a-z0-9])([A-Z])/g;
+
 /**
  * Extend Joyst to create Joyst-supported custom elements
  */
@@ -18,6 +20,10 @@ export class Joyst extends HTMLElement {
     static inputs: string[] = [];
     static get observedAttributes(): string[] {
         return this.inputs;
+    }
+
+    static get tag(): string {
+        return this.name.replace(PascalCaseRegexp, "$1-$2").toLowerCase();
     }
 
     #initialized = false;

@@ -1,9 +1,9 @@
-const { createDefaultEsmPreset } = require("ts-jest");
+import { createDefaultEsmPreset } from "ts-jest";
 
 const preset = createDefaultEsmPreset();
 
 /** @type {import('ts-jest').JestConfigWithTsJest} **/
-module.exports = {
+export default {
     ...preset,
     testEnvironment: "jsdom",
     collectCoverage: true,

@@ -16,6 +16,11 @@ describe("Joyst", () => {
         expect(Test.observedAttributes).toStrictEqual(["test1", "test2"]);
     });
 
+    it("generates an appropriate static tag value based on the class name", () => {
+        class ATestClassName extends Joyst {}
+        expect(ATestClassName.tag).toBe("a-test-class-name");
+    });
+
     describe("Events", () => {
         it("listens for events defined in Initialize", () => {
             const tagName = `my-test${tagNumber++}`;

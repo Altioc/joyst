@@ -10,7 +10,7 @@ const NoTemplate = Symbol("NoTemplate");
 
 type TemplateResolvable = typeof NoTemplate | HTMLTemplateElement | string;
 
-const PascalCaseRegexp = /([a-z0-9])([A-Z])/g;
+const PascalCaseRegexp = /([A-Za-z0-9])([A-Z])/g;
 
 /**
  * Extend Joyst to create Joyst-supported custom elements

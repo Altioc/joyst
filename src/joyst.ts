@@ -154,14 +154,16 @@ export class Joyst extends HTMLElement {
      *
      * Throws error if the child no longer exists when the method is called
      */
-    getChild(childName: string): HTMLElement {
+    getChild<ElementType extends HTMLElement = HTMLElement>(
+        childName: string
+    ): ElementType {
         const child = this.#keyedChildren.get(childName)?.deref();
 
         if (!child) {
             throw new Error(`Attempted to get nonexistent child: ${childName}`);
         }
 
-        return child;
+        return child as ElementType;
     }
 
     /**

@@ -131,7 +131,15 @@ export class Joyst extends HTMLElement {
     /**
      * Convenience wrapper around addEvent that listens to a subject's change event
      */
-    addSubject(subject: Subject): void {
+    addSubject(subjectResolvable: Subject | string | null | undefined): void {
+        const subject = typeof subjectResolvable === "string"
+            ? Subject.for(subjectResolvable)
+            : subjectResolvable;
+
+        if (subject === null || subject === undefined) {
+            return;
+        }
+
         this.addEvent("change", this.#onSubjectChange, subject);
 
         if (this.#initialized) {
@@ -144,7 +152,17 @@ export class Joyst extends HTMLElement {
         this.onChange(subject, subject.get(), subject.getPrevious());
     };
 
-    removeSubject(subject: Subject): void {
+    removeSubject(
+        subjectResolvable: Subject | string | null | undefined
+    ): void {
+        const subject = typeof subjectResolvable === "string"
+            ? Subject.for(subjectResolvable)
+            : subjectResolvable;
+
+        if (subject === null || subject === undefined) {
+            return;
+        }
+
         this.removeEvent("change", this.#onSubjectChange, subject);
     }
 

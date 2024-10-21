@@ -270,6 +270,33 @@ describe("Joyst", () => {
 
             expect(mockChange).toHaveBeenCalledTimes(2);
         });
+
+        it("can reference subjects by their name", () => {
+            const tagName = `my-test${tagNumber++}`;
+            const subject = new Subject(0, "test");
+            const mockChange = jest.fn();
+            class Test extends Joyst {
+                onInitialize() {
+                    this.addSubject("test");
+                }
+                onChange = mockChange;
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName) as Test;
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(1);
+
+            subject.set(1);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+
+            element.removeSubject("test");
+
+            subject.set(2);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+        });
     });
 
     describe("Children", () => {

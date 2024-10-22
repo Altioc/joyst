@@ -1,3 +1,4 @@
+import { Collection, CollectionChangeDetail } from "./collection";
 import { Subject } from "./subject";
 
 type EventDescriptor = {
@@ -17,9 +18,9 @@ const PascalCaseRegexp = /([A-Za-z0-9])([A-Z])/g;
  */
 export class Joyst extends HTMLElement {
     static template: TemplateResolvable = NoTemplate;
-    static inputs: string[] = [];
+    static props: string[] = [];
     static get observedAttributes(): string[] {
-        return this.inputs;
+        return this.props;
     }
 
     static get tag(): string {
@@ -62,6 +63,18 @@ export class Joyst extends HTMLElement {
                     event.target,
                     event.target.get(),
                     event.target.getPrevious()
+                );
+            }
+
+            if (event.target instanceof Collection) {
+                this.onChange(
+                    event.target,
+                    {
+                        type: Collection.Set,
+                        value: event.target.get(),
+                        collection: event.target
+                    },
+                    undefined
                 );
             }
         }
@@ -167,6 +180,49 @@ export class Joyst extends HTMLElement {
     }
 
     /**
+     * Convenience wrapper around addEvent that listens to a collection's change event
+     */
+    addCollection(
+        collectionResolvable: Collection | string | null | undefined
+    ): void {
+        const collection = typeof collectionResolvable === "string"
+            ? Collection.for(collectionResolvable)
+            : collectionResolvable;
+
+        if (collection === null || collection === undefined) {
+            return;
+        }
+
+        this.addEvent("change", this.#onCollectionChange, collection);
+
+        if (this.#initialized) {
+            this.onChange(collection, {
+                type: Collection.Set,
+                value: collection
+            }, undefined);
+        }
+    }
+
+    #onCollectionChange = (event: CustomEvent<CollectionChangeDetail>) => {
+        const { detail } = event;
+        this.onChange(detail.collection, detail, undefined);
+    };
+
+    removeCollection(
+        collectionResolvable: Collection | string | null | undefined
+    ): void {
+        const collection = typeof collectionResolvable === "string"
+            ? Collection.for(collectionResolvable)
+            : collectionResolvable;
+
+        if (collection === null || collection === undefined) {
+            return;
+        }
+
+        this.removeEvent("change", this.#onCollectionChange, collection);
+    }
+
+    /**
      * Returns a reference to a child element that had a "key" attribute
      * when the template was initialized
      *
@@ -186,9 +242,13 @@ export class Joyst extends HTMLElement {
 
     /**
      * Override this method to add custom logic for handling attribute
-     * and/or subject value changes
+     * and/or subject/collection value changes
      */
-    onChange(type: string | Subject, newValue: any, previousValue: any) {}
+    onChange(
+        type: string | Subject | Collection,
+        newValue: any,
+        previousValue: any
+    ) {}
 
     /**
      * Override this method to add custom logic when the component is

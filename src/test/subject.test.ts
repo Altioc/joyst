@@ -38,14 +38,30 @@ describe("Subject", () => {
         expect(mockCallback).not.toHaveBeenCalled();
     });
 
-    it("returns a previously defined, named, subject", () => {
+    it("returns a previously named subject", () => {
         const subject = new Subject(0, "test");
 
         expect(Subject.for("test")).toBe(subject);
     });
 
-    it("returns undefined if no name is provided to for static method", () => {
+    it("returns undefined if no name is provided to the 'for' static method or there are no subjects with the given name", () => {
         new Subject(0, "test");
+
         expect(Subject.for(undefined)).toBeUndefined();
+
+        expect(Subject.for("some other name")).toBeUndefined();
+    });
+
+    it("should clear previously named subjects when calling 'clearNamedSubjects'", () => {
+        const subject1 = new Subject(0, "test1");
+        const subject2 = new Subject(0, "test2");
+
+        expect(Subject.for("test1")).toBe(subject1);
+        expect(Subject.for("test2")).toBe(subject2);
+
+        Subject.clearNamedSubjects();
+
+        expect(Subject.for("test1")).toBeUndefined();
+        expect(Subject.for("test2")).toBeUndefined();
     });
 });

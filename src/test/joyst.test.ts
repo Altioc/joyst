@@ -1,3 +1,4 @@
+import { Collection, CollectionChangeDetail } from "../collection";
 import { Joyst } from "../joyst";
 import { Subject } from "../subject";
 
@@ -9,9 +10,9 @@ describe("Joyst", () => {
         document.body.innerHTML = "";
     });
 
-    it("maps from a static array of string inputs to a static arry of string observedAttributes", () => {
+    it("maps from a static array of string props to a static arry of string observedAttributes", () => {
         class Test extends Joyst {
-            static inputs = ["test1", "test2"];
+            static props = ["test1", "test2"];
         }
         expect(Test.observedAttributes).toStrictEqual(["test1", "test2"]);
     });
@@ -46,7 +47,7 @@ describe("Joyst", () => {
             const tagName = `my-test${tagNumber++}`;
             const mockCallback = jest.fn();
             class Test extends Joyst {
-                static inputs = ["test"];
+                static props = ["test"];
 
                 onChange(_: string, newValue: string) {
                     if (newValue === "1") {
@@ -165,7 +166,7 @@ describe("Joyst", () => {
             const subject = new Subject(99);
             const mockSubjectChange = jest.fn();
             class Test extends Joyst {
-                static inputs = ["test"];
+                static props = ["test"];
 
                 onChange(type: Subject, newValue: string) {
                     if (newValue === "1") {
@@ -257,10 +258,10 @@ describe("Joyst", () => {
             expect(mockChange).toHaveBeenCalledWith(subject, 1, 0);
 
             document.body.innerHTML = "";
+
             subject.set(2);
 
             expect(mockChange).toHaveBeenCalledTimes(2);
-            expect(mockChange).toHaveBeenCalledWith(subject, 1, 0);
 
             document.body.appendChild(element);
 
@@ -296,6 +297,249 @@ describe("Joyst", () => {
             subject.set(2);
 
             expect(mockChange).toHaveBeenCalledTimes(2);
+        });
+
+        it("fails silently if given an invalid subject or subject name", () => {
+            const tagName = `my-test${tagNumber++}`;
+            const subject = new Subject(0, "test");
+            const mockChange = jest.fn();
+            class Test extends Joyst {
+                onInitialize() {
+                    this.addSubject(undefined);
+                }
+                onChange = mockChange;
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName) as Test;
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(0);
+
+            subject.set(1);
+
+            expect(mockChange).toHaveBeenCalledTimes(0);
+
+            element.removeSubject(undefined);
+
+            subject.set(2);
+
+            expect(mockChange).toHaveBeenCalledTimes(0);
+        });
+    });
+
+    describe("Collections", () => {
+        it("subscribes to collections defined in Initialize", () => {
+            const tagName = `my-test${tagNumber++}`;
+            const collection = new Collection<number>();
+            const mockChange = jest.fn();
+            class Test extends Joyst {
+                onInitialize() {
+                    this.addCollection(collection);
+                }
+                onChange = mockChange;
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName);
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(1);
+
+            collection.add(1);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+        });
+
+        it("subscribes to collections defined anywhere else", () => {
+            const tagName = `my-test${tagNumber++}`;
+            const collection = new Collection<number>();
+            const mockCollectionChange = jest.fn();
+            class Test extends Joyst {
+                static props = ["test"];
+
+                onChange(
+                    type: Collection | string,
+                    newValue: CollectionChangeDetail | string
+                ) {
+                    if (newValue === "1") {
+                        this.addCollection(collection);
+                    }
+
+                    if (type === collection) {
+                        mockCollectionChange();
+                    }
+                }
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName);
+            element.setAttribute("test", "0");
+            document.body.appendChild(element);
+
+            expect(mockCollectionChange).toHaveBeenCalledTimes(0);
+
+            element.setAttribute("test", "1");
+
+            expect(mockCollectionChange).toHaveBeenCalledTimes(1);
+
+            collection.add(1);
+
+            expect(mockCollectionChange).toHaveBeenCalledTimes(2);
+        });
+
+        it("unsubscribes from collections on disconnect", () => {
+            const tagName = `my-test${tagNumber++}`;
+            const collection = new Collection<number>();
+            const mockChange = jest.fn();
+            class Test extends Joyst {
+                onInitialize() {
+                    this.addCollection(collection);
+                }
+                onChange = mockChange;
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName);
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(1);
+            expect(mockChange).toHaveBeenCalledWith(collection, {
+                type: Collection.Set,
+                value: collection.get(),
+                collection
+            }, undefined);
+
+            collection.add(1);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+            expect(mockChange).toHaveBeenCalledWith(collection, {
+                type: Collection.Add,
+                value: 1,
+                collection
+            }, undefined);
+
+            document.body.innerHTML = "";
+
+            collection.add(2);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(3);
+            expect(mockChange).toHaveBeenCalledWith(collection, {
+                type: Collection.Set,
+                value: collection.get(),
+                collection
+            }, undefined);
+
+            collection.add(3);
+
+            expect(mockChange).toHaveBeenCalledTimes(4);
+            expect(mockChange).toHaveBeenCalledWith(collection, {
+                type: Collection.Add,
+                value: 3,
+                collection
+            }, undefined);
+        });
+
+        it("removed collections will not be resubscribed to on connect", () => {
+            const tagName = `my-test${tagNumber++}`;
+            const collection = new Collection<number>();
+            const mockChange = jest.fn();
+            class Test extends Joyst {
+                onInitialize() {
+                    this.addCollection(collection);
+                }
+                onChange = mockChange;
+                onDisconnect() {
+                    this.removeCollection(collection);
+                }
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName);
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(1);
+            expect(mockChange).toHaveBeenCalledWith(collection, {
+                type: Collection.Set,
+                value: collection.get(),
+                collection
+            }, undefined);
+
+            collection.add(1);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+            expect(mockChange).toHaveBeenCalledWith(collection, {
+                type: Collection.Add,
+                value: 1,
+                collection
+            }, undefined);
+
+            document.body.innerHTML = "";
+
+            collection.add(2);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+
+            collection.add(3);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+        });
+
+        it("can reference collections by their name", () => {
+            const tagName = `my-test${tagNumber++}`;
+            const collection = new Collection<number>([], "test");
+            const mockChange = jest.fn();
+            class Test extends Joyst {
+                onInitialize() {
+                    this.addCollection("test");
+                }
+                onChange = mockChange;
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName) as Test;
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(1);
+
+            collection.add(1);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+
+            element.removeCollection("test");
+
+            collection.add(2);
+
+            expect(mockChange).toHaveBeenCalledTimes(2);
+        });
+
+        it("fails silently if given an invalid collection or collection name", () => {
+            const tagName = `my-test${tagNumber++}`;
+            const collection = new Collection<number>([], "test");
+            const mockChange = jest.fn();
+            class Test extends Joyst {
+                onInitialize() {
+                    this.addCollection(undefined);
+                }
+                onChange = mockChange;
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName) as Test;
+            document.body.appendChild(element);
+
+            expect(mockChange).toHaveBeenCalledTimes(0);
+
+            collection.add(1);
+
+            expect(mockChange).toHaveBeenCalledTimes(0);
+
+            element.removeCollection(undefined);
+
+            collection.add(2);
+
+            expect(mockChange).toHaveBeenCalledTimes(0);
         });
     });
 
@@ -412,7 +656,7 @@ describe("Joyst", () => {
             const mockInitialize = jest.fn();
             const mockChange = jest.fn();
             class Test extends Joyst {
-                static inputs = ["test"];
+                static props = ["test"];
                 onInitialize = () => mockInitialize(performance.now());
                 onChange = () => mockChange(performance.now());
             }

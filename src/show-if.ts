@@ -8,7 +8,7 @@ import { Subject } from "./subject";
  * component - (optional) The tag name of the element to create when the condition is true
  */
 export class ShowIf extends Joyst {
-    static inputs = ["condition", "component"];
+    static props = ["condition", "component"];
 
     #active = false;
 

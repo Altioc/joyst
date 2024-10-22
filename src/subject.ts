@@ -3,7 +3,7 @@
  * notify any subscribed entities when they do
  */
 export class Subject<SubjectValue = any> extends EventTarget {
-    static #allSubjects = new Map();
+    static #allSubjects = new Map<string, WeakRef<Subject>>();
 
     name?: string;
 

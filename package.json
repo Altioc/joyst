@@ -1,7 +1,7 @@
 {
     "name": "joyst",
     "description": "Another web component framework",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "source": "src/index.ts",
     "main": "dist/joyst.js",
     "type": "module",

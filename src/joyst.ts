@@ -1,6 +1,6 @@
 import { Subject } from "./subject";
 
-export type EventDescriptor = {
+type EventDescriptor = {
     name: string;
     callback: any;
     target: EventTarget;

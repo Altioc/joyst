@@ -61,7 +61,7 @@ export class ShowIf extends Joyst {
         if (this.#component) {
             this.#component.replaceWith(newComponent);
         } else {
-            this.appendChild(newComponent);
+            this.shadowRoot.appendChild(newComponent);
         }
 
         this.#component = newComponent;
@@ -84,7 +84,7 @@ export class ShowIf extends Joyst {
             const tag = this.getAttribute("component")!;
             const component = document.createElement(tag);
             this.#component = component;
-            this.appendChild(component);
+            this.shadowRoot.appendChild(component);
         }
     }
 

@@ -33,6 +33,8 @@ export class Joyst extends HTMLElement {
     #initialAttributeValues: [string, string, string | null][] = [];
     #keyedChildren = new Map<string, WeakRef<HTMLElement>>();
 
+    shadowRoot!: ShadowRoot;
+
     /**
      * for initialize:
      * - set up template and keyed children
@@ -45,6 +47,8 @@ export class Joyst extends HTMLElement {
      */
     connectedCallback() {
         if (!this.#initialized) {
+            this.shadowRoot = this.attachShadow({ mode: "open" });
+
             this.#initializeTemplateContent();
 
             this.onInitialize();
@@ -305,12 +309,6 @@ export class Joyst extends HTMLElement {
             this.#keyedChildren.set(key, new WeakRef(child));
         });
 
-        // @ts-ignore
-        if (this.constructor.useShadowRoot) {
-            const shadow = this.attachShadow({ mode: "open" });
-            shadow.appendChild(content);
-        } else {
-            this.appendChild(content);
-        }
+        this.shadowRoot.appendChild(content);
     }
 }

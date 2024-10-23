@@ -565,7 +565,7 @@ describe("Joyst", () => {
 
             expect(template).not.toBeNull();
 
-            expect(element.innerHTML).toBe(template!.innerHTML);
+            expect(element.shadowRoot!.innerHTML).toBe(template!.innerHTML);
         });
 
         it("does nothing if no template is provided", () => {
@@ -575,7 +575,7 @@ describe("Joyst", () => {
             const element = document.createElement(tagName);
             document.body.appendChild(element);
 
-            expect(element.innerHTML).toBe("");
+            expect(element.shadowRoot!.innerHTML).toBe("");
         });
 
         it("Queries for the template if the template property is a string", () => {
@@ -595,7 +595,7 @@ describe("Joyst", () => {
             const template = document.querySelector("template");
             expect(template).not.toBeNull();
 
-            expect(element.innerHTML).toBe(template!.innerHTML);
+            expect(element.shadowRoot!.innerHTML).toBe(template!.innerHTML);
         });
 
         it("It caches all keyed elements in the template", () => {
@@ -623,34 +623,6 @@ describe("Joyst", () => {
             const button = element.getChild("testButton");
             expect(button.tagName).toBe("BUTTON");
             expect(button.textContent).toBe("Test Button");
-        });
-
-        it("It creates an open shadowDom if useShadowRoot is true", () => {
-            const tagName = `my-test${tagNumber++}`;
-            document.body.innerHTML = `
-                <template>
-                    <h1>Test</h1>
-                </template>
-            `;
-
-            const template = document.querySelector<HTMLTemplateElement>(
-                "template"
-            )!;
-
-            class Test extends Joyst {
-                static useShadowRoot = true;
-
-                static template = template;
-            }
-            customElements.define(tagName, Test);
-            const element = document.createElement(tagName);
-            document.body.appendChild(element);
-
-            expect(template).not.toBeNull();
-
-            expect(element.shadowRoot).not.toBeNull();
-
-            expect(element.shadowRoot!.innerHTML).toBe(template!.innerHTML);
         });
     });
 

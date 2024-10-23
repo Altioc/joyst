@@ -19,6 +19,7 @@ const PascalCaseRegexp = /([A-Za-z0-9])([A-Z])/g;
 export class Joyst extends HTMLElement {
     static template: TemplateResolvable = NoTemplate;
     static props: string[] = [];
+    static useShadowRoot = false;
     static get observedAttributes(): string[] {
         return this.props;
     }
@@ -304,6 +305,12 @@ export class Joyst extends HTMLElement {
             this.#keyedChildren.set(key, new WeakRef(child));
         });
 
-        this.appendChild(content);
+        // @ts-ignore
+        if (this.constructor.useShadowRoot) {
+            const shadow = this.attachShadow({ mode: "open" });
+            shadow.appendChild(content);
+        } else {
+            this.appendChild(content);
+        }
     }
 }

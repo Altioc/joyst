@@ -624,6 +624,34 @@ describe("Joyst", () => {
             expect(button.tagName).toBe("BUTTON");
             expect(button.textContent).toBe("Test Button");
         });
+
+        it("It creates an open shadowDom if useShadowRoot is true", () => {
+            const tagName = `my-test${tagNumber++}`;
+            document.body.innerHTML = `
+                <template>
+                    <h1>Test</h1>
+                </template>
+            `;
+
+            const template = document.querySelector<HTMLTemplateElement>(
+                "template"
+            )!;
+
+            class Test extends Joyst {
+                static useShadowRoot = true;
+
+                static template = template;
+            }
+            customElements.define(tagName, Test);
+            const element = document.createElement(tagName);
+            document.body.appendChild(element);
+
+            expect(template).not.toBeNull();
+
+            expect(element.shadowRoot).not.toBeNull();
+
+            expect(element.shadowRoot!.innerHTML).toBe(template!.innerHTML);
+        });
     });
 
     describe("Lifecycle", () => {

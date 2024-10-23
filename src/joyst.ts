@@ -19,7 +19,6 @@ const PascalCaseRegexp = /([A-Za-z0-9])([A-Z])/g;
 export class Joyst extends HTMLElement {
     static template: TemplateResolvable = NoTemplate;
     static props: string[] = [];
-    static useShadowRoot = false;
     static get observedAttributes(): string[] {
         return this.props;
     }
@@ -28,12 +27,12 @@ export class Joyst extends HTMLElement {
         return this.name.replace(PascalCaseRegexp, "$1-$2").toLowerCase();
     }
 
+    shadowRoot!: ShadowRoot;
+
     #initialized = false;
     #events = new Set<EventDescriptor>();
     #initialAttributeValues: [string, string, string | null][] = [];
     #keyedChildren = new Map<string, WeakRef<HTMLElement>>();
-
-    shadowRoot!: ShadowRoot;
 
     /**
      * for initialize:
